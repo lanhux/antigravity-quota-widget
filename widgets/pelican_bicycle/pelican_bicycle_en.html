@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pelican on a Bicycle</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @keyframes bellRing {
+      0%, 100% { transform: rotate(0deg); }
+      20%, 60% { transform: rotate(-22deg); }
+      40%, 80% { transform: rotate(22deg); }
+    }
+    .ring-active {
+      animation: bellRing 0.45s ease-in-out;
+      transform-origin: 496px 286px;
+    }
+    @keyframes pouchPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    .pouch-bounce {
+      animation: pouchPulse 0.4s ease-out;
+      transform-origin: 540px 220px;
+    }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translate(0, 0) scale(1); }
+      100% { opacity: 0; transform: translate(15px, -45px) scale(1.4); }
+    }
+    .float-item {
+      position: absolute;
+      pointer-events: none;
+      animation: floatUp 0.8s ease-out forwards;
+      font-size: 22px;
+      z-index: 50;
+    }
+  </style>
+</head>
+<body class="bg-transparent text-[var(--foreground)] antialiased p-2 sm:p-3 select-none">
+  <div class="bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] rounded-2xl p-3 shadow-lg max-w-2xl mx-auto backdrop-blur-sm">
+    <!-- Header status bar -->
+    <div class="flex items-center justify-between mb-2 px-1">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🚴</span>
+        <div>
+          <h1 class="text-sm font-bold tracking-tight text-[var(--foreground)] leading-tight">Pelican Express · Joyful Ride</h1>
+          <div class="text-[11px] text-[var(--muted-foreground)] flex items-center gap-2">
+            <span id="statusTag" class="inline-flex items-center px-1.5 py-0.2 rounded-md bg-emerald-500/10 text-emerald-600 font-medium text-[10px] border border-emerald-500/20">Cruising 24km/h</span>
+            <span>Fed: <strong id="fishCount" class="text-amber-500 font-bold">0</strong> fish</span>
+          </div>
+        </div>
+      </div>
+      <!-- Speedometer -->
+      <div class="flex items-baseline gap-1 bg-[var(--background)] px-2.5 py-1 rounded-xl border border-[var(--border)] shadow-xs">
+        <span class="text-xs text-[var(--muted-foreground)] font-mono">SPD</span>
+        <span id="speedNum" class="text-base font-extrabold font-mono text-[var(--foreground)] tracking-tight">24</span>
+        <span class="text-[10px] text-[var(--muted-foreground)] font-mono">km/h</span>
+      </div>
+    </div>
+
+    <!-- SVG Canvas -->
+    <div id="svgWrapper" class="relative overflow-hidden rounded-xl border border-[var(--border)] shadow-inner bg-gradient-to-b from-sky-100 to-amber-50 group aspect-[4/3] max-h-[310px] flex items-center justify-center">
+      <svg id="pelicanSvg" class="w-full h-auto block select-none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 600" width="800" height="600">
+  <title>Pelican on a Bicycle</title>
+
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7cc8ff"/>
+      <stop offset="0.7" stop-color="#d6f0ff"/>
+      <stop offset="1" stop-color="#fff6e0"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff7b0" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#fff7b0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="feather" cx="0.4" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.75" stop-color="#f1f4f7"/>
+      <stop offset="1" stop-color="#dde4ea"/>
+    </radialGradient>
+    <linearGradient id="beak" x1="0" y1="0" x2="1" y2="0.3">
+      <stop offset="0" stop-color="#ffe9a3"/>
+      <stop offset="0.6" stop-color="#ffd166"/>
+      <stop offset="1" stop-color="#f7a531"/>
+    </linearGradient>
+    <linearGradient id="pouch" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#ffc07a"/>
+      <stop offset="0.55" stop-color="#ff9a5c"/>
+      <stop offset="1" stop-color="#ff7a59"/>
+    </linearGradient>
+    <linearGradient id="frameGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3fd1c3"/>
+      <stop offset="1" stop-color="#169c90"/>
+    </linearGradient>
+
+    <!-- Wheels -->
+    <g id="wheel">
+      <circle r="75" fill="none" stroke="#2b2d42" stroke-width="10"/>
+      <circle r="75" fill="none" stroke="#4a4e69" stroke-width="2" stroke-dasharray="3 6"/>
+      <circle r="68" fill="none" stroke="#b8c2cc" stroke-width="3.5"/>
+      <circle r="64" fill="none" stroke="#dfe5ea" stroke-width="1"/>
+      <g stroke="#9aa5b1" stroke-width="1.6">
+        <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.1s" repeatCount="indefinite"/>
+        <line x1="0" y1="-66" x2="0" y2="66"/>
+        <line x1="0" y1="-66" x2="0" y2="66" transform="rotate(22.5)"/>
+        <line x1="0" y1="-66" x2="0" y2="66" transform="rotate(45)"/>
+        <line x1="0" y1="-66" x2="0" y2="66" transform="rotate(67.5)"/>
+        <line x1="0" y1="-66" x2="0" y2="66" transform="rotate(90)"/>
+        <line x1="0" y1="-66" x2="0" y2="66" transform="rotate(112.5)"/>
+        <line x1="0" y1="-66" x2="0" y2="66" transform="rotate(135)"/>
+        <line x1="0" y1="-66" x2="0" y2="66" transform="rotate(157.5)"/>
+        <rect x="-3" y="-50" width="6" height="12" rx="2" fill="#ffb703" stroke="none"/>
+      </g>
+      <circle r="9" fill="#6c757d"/>
+      <circle r="4" fill="#e9ecef"/>
+    </g>
+
+    <!-- Webbed foot -->
+    <g id="foot">
+      <path d="M -12 -3 Q -13 -11 -3 -11 Q 10 -11 20 -8 Q 27 -6 25 -3 Q 22 -1 19 -3 Q 16 -1 13 -3 Z"/>
+      <path d="M 2 -9 Q 10 -7 18 -5 M 0 -7 Q 8 -5 14 -4" fill="none" stroke-width="1" opacity="0.6"/>
+    </g>
+
+    <!-- Pedal -->
+    <g id="pedal">
+      <rect x="-13" y="-3" width="26" height="6" rx="2" fill="#3d405b"/>
+      <rect x="-11" y="-1" width="5" height="2" fill="#ffb703"/>
+      <rect x="6" y="-1" width="5" height="2" fill="#ff6b6b"/>
+    </g>
+  </defs>
+
+  <!-- Turbo Flame -->
+  <g id="turboFlame" opacity="0" transform="translate(210, 445)" style="transition: opacity 0.3s ease;">
+    <path d="M0 -8 C -40 -15 -80 -5 -110 0 C -80 5 -40 15 0 8 Z" fill="#38bdf8" opacity="0.8">
+      <animate attributeName="d" values="M0 -8 C -40 -15 -80 -5 -110 0 C -80 5 -40 15 0 8 Z; M0 -10 C -50 -20 -90 -3 -130 0 C -90 3 -50 20 0 10 Z; M0 -8 C -40 -15 -80 -5 -110 0 C -80 5 -40 15 0 8 Z" dur="0.15s" repeatCount="indefinite"/>
+    </path>
+    <path d="M0 -5 C -30 -8 -50 -2 -70 0 C -50 2 -30 8 0 5 Z" fill="#fbbf24" opacity="0.9">
+      <animate attributeName="d" values="M0 -5 C -30 -8 -50 -2 -70 0 C -50 2 -30 8 0 5 Z; M0 -7 C -35 -10 -60 -2 -85 0 C -60 2 -35 10 0 7 Z; M0 -5 C -30 -8 -50 -2 -70 0 C -50 2 -30 8 0 5 Z" dur="0.12s" repeatCount="indefinite"/>
+    </path>
+    <path d="M0 -2 C -15 -3 -30 -1 -45 0 C -30 1 -15 3 0 2 Z" fill="#ffffff" opacity="0.95"/>
+  </g>
+
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#sky)"/>
+
+  <!-- Sun -->
+  <g transform="translate(95 90)">
+    <circle r="80" fill="url(#sunGlow)"/>
+    <g stroke="#ffd93d" stroke-width="5" stroke-linecap="round">
+      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="30s" repeatCount="indefinite"/>
+      <line x1="0" y1="-52" x2="0" y2="-64"/><line x1="0" y1="52" x2="0" y2="64"/>
+      <line x1="-52" y1="0" x2="-64" y2="0"/><line x1="52" y1="0" x2="64" y2="0"/>
+      <line x1="37" y1="37" x2="45" y2="45"/><line x1="-37" y1="-37" x2="-45" y2="-45"/>
+      <line x1="37" y1="-37" x2="45" y2="-45"/><line x1="-37" y1="37" x2="-45" y2="45"/>
+    </g>
+    <circle r="40" fill="#ffe066" stroke="#ffcf33" stroke-width="3"/>
+    <circle cx="-12" cy="-4" r="3" fill="#8a6d1f"/><circle cx="12" cy="-4" r="3" fill="#8a6d1f"/>
+    <path d="M -12 10 Q 0 20 12 10" fill="none" stroke="#8a6d1f" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- Clouds -->
+  <g fill="#ffffff" opacity="0.95">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0; -50 0; 0 0" dur="24s" repeatCount="indefinite"/>
+      <circle cx="300" cy="80" r="24"/><circle cx="328" cy="68" r="30"/><circle cx="360" cy="82" r="22"/>
+      <rect x="290" y="80" width="80" height="24" rx="12"/>
+    </g>
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0; -35 0; 0 0" dur="18s" repeatCount="indefinite"/>
+      <circle cx="710" cy="190" r="18"/><circle cx="732" cy="178" r="24"/><circle cx="758" cy="192" r="17"/>
+      <rect x="700" y="190" width="70" height="18" rx="9"/>
+    </g>
+  </g>
+
+  <!-- Mountains -->
+  <path d="M0 400 Q 110 320 230 380 T 470 360 T 800 350 V 500 H0 Z" fill="#cdeec0"/>
+  <path d="M0 440 Q 150 380 300 430 T 600 420 T 800 425 V 500 H0 Z" fill="#a8e29a"/>
+
+  <!-- Meadow & Road -->
+  <rect y="480" width="800" height="120" fill="#8fd694"/>
+  <rect y="505" width="800" height="62" fill="#7d8597"/>
+  <rect y="505" width="800" height="4" fill="#5c6378"/>
+  <rect y="563" width="800" height="4" fill="#5c6378"/>
+  <line x1="0" y1="545" x2="800" y2="545" stroke="#ffffff" stroke-width="4" stroke-dasharray="34 22">
+    <animate attributeName="stroke-dashoffset" from="0" to="56" dur="0.5s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Flowers -->
+  <g>
+    <path d="M40 500 l4 -14 l3 14 l4 -10 l2 10" fill="none" stroke="#4caf50" stroke-width="2"/>
+    <path d="M690 498 l4 -14 l3 14 l4 -10 l2 10" fill="none" stroke="#4caf50" stroke-width="2"/>
+    <g transform="translate(120 492)"><circle r="4" fill="#ffd166"/><circle cx="-5" r="3.5" fill="#ff8fab"/><circle cx="5" r="3.5" fill="#ff8fab"/><circle cy="-5" r="3.5" fill="#ff8fab"/><circle cy="5" r="3.5" fill="#ff8fab"/><circle r="3" fill="#ffd166"/></g>
+    <g transform="translate(640 590)"><circle cx="-5" r="3.5" fill="#bde0fe"/><circle cx="5" r="3.5" fill="#bde0fe"/><circle cy="-5" r="3.5" fill="#bde0fe"/><circle cy="5" r="3.5" fill="#bde0fe"/><circle r="3" fill="#ffd166"/></g>
+    <g transform="translate(250 585)"><circle cx="-5" r="3.5" fill="#ffffff"/><circle cx="5" r="3.5" fill="#ffffff"/><circle cy="-5" r="3.5" fill="#ffffff"/><circle cy="5" r="3.5" fill="#ffffff"/><circle r="3" fill="#ffb703"/></g>
+  </g>
+
+  <!-- Speed lines & Dust -->
+  <g stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.85">
+    <line x1="50" y1="520" x2="110" y2="520">
+      <animate attributeName="x1" values="240;0" dur="0.45s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="300;60" dur="0.45s" repeatCount="indefinite"/>
+    </line>
+    <line x1="120" y1="545" x2="190" y2="545">
+      <animate attributeName="x1" values="280;10" dur="0.38s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="350;80" dur="0.38s" repeatCount="indefinite"/>
+    </line>
+  </g>
+
+  <g transform="translate(225 530)" fill="#e5e5e5" opacity="0.75">
+    <circle cx="0" cy="0" r="10">
+      <animate attributeName="cx" values="0;-70" dur="0.55s" repeatCount="indefinite"/>
+      <animate attributeName="r" values="6;16" dur="0.55s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.8;0" dur="0.55s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Bicycle Wheels -->
+  <use href="#wheel" x="225" y="475"/>
+  <use href="#wheel" x="515" y="475"/>
+
+  <!-- Bicycle Frame -->
+  <g stroke="url(#frameGrad)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <line x1="225" y1="475" x2="335" y2="475"/>
+    <line x1="335" y1="475" x2="310" y2="350"/>
+    <line x1="225" y1="475" x2="310" y2="350"/>
+    <line x1="335" y1="475" x2="470" y2="330"/>
+    <line x1="310" y1="350" x2="470" y2="330"/>
+    <line x1="515" y1="475" x2="470" y2="330"/>
+    <line x1="470" y1="330" x2="458" y2="280"/>
+  </g>
+
+  <!-- Saddle & Handlebars -->
+  <path d="M 270 345 C 285 330 330 330 350 348 C 340 358 300 356 270 345 Z" fill="#2b2d42"/>
+  <path d="M 458 280 L 488 280 Q 502 280 502 295" fill="none" stroke="#2b2d42" stroke-width="9" stroke-linecap="round"/>
+  <path d="M 496 295 L 508 295" stroke="#ffb703" stroke-width="9" stroke-linecap="round"/>
+
+  <!-- Bell -->
+  <g>
+    <circle cx="496" cy="286" r="6" fill="#ffd166" stroke="#c99700" stroke-width="1.5" class="transition-transform"/>
+  </g>
+
+  <!-- Pedaling Mechanism & Legs -->
+  <g transform="translate(335 475)">
+    <animateTransform attributeName="transform" type="rotate" from="0 335 475" to="360 335 475" dur="1.1s" repeatCount="indefinite"/>
+    <line x1="335" y1="475" x2="335" y2="441" stroke="#495057" stroke-width="6" stroke-linecap="round"/>
+    <line x1="335" y1="475" x2="335" y2="509" stroke="#495057" stroke-width="6" stroke-linecap="round"/>
+    <use href="#pedal" x="335" y="441"/>
+    <use href="#foot" x="335" y="441" fill="#f77f00"/>
+    <use href="#pedal" x="335" y="509"/>
+    <use href="#foot" x="335" y="509" fill="#e06900"/>
+  </g>
+
+  <!-- Pelican Body & Wings -->
+  <g id="pelicanRider">
+    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -4; 0 0" dur="0.55s" repeatCount="indefinite"/>
+
+    <!-- Tail -->
+    <path d="M 255 310 Q 230 315 220 330 Q 240 336 268 328 Z" fill="#dde4ea"/>
+
+    <!-- Main Body -->
+    <ellipse cx="340" cy="310" rx="72" ry="52" fill="url(#feather)"/>
+
+    <!-- Wing -->
+    <path d="M 290 300 C 290 280 345 275 375 295 C 385 320 345 350 295 332 C 285 320 290 310 290 300 Z" fill="#ffffff" stroke="#c5d1dc" stroke-width="1.8"/>
+
+    <!-- Arm / Hand -->
+    <path d="M 370 295 Q 430 270 488 288" fill="none" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+    <ellipse cx="488" cy="288" rx="8" ry="7" fill="#f77f00"/>
+
+    <!-- Neck & Head -->
+    <path d="M 375 290 C 395 260 410 210 435 195 C 455 185 470 195 470 215 C 455 245 425 285 395 305 Z" fill="url(#feather)"/>
+    <circle cx="460" cy="188" r="32" fill="url(#feather)"/>
+
+    <!-- Beak & Pouch -->
+    <path d="M 470 185 L 565 198 L 515 212 Z" fill="url(#beak)"/>
+    <path d="M 470 205 Q 540 220 545 255 Q 490 275 460 218 Z" fill="url(#pouch)"/>
+
+    <!-- Eye -->
+    <circle cx="468" cy="180" r="5" fill="#2b2d42"/>
+    <circle cx="470" cy="178" r="1.8" fill="#ffffff"/>
+
+    <!-- Sunglasses (Optional / Interactive) -->
+    <g id="sunglassesGroup" opacity="0" transform="translate(488, 166) scale(0.1)" style="transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-origin: 470px 180px;">
+      <path d="M 452 173 L 484 175 L 480 188 Q 468 190 454 185 Z" fill="#1e1e24"/>
+      <path d="M 455 175 L 472 176 L 466 184 Z" fill="#4cc9f0" opacity="0.8"/>
+      <line x1="450" y1="174" x2="435" y2="178" stroke="#1e1e24" stroke-width="2"/>
+    </g>
+
+    <!-- Speech bubble -->
+    <g transform="translate(490, 100)">
+      <rect x="0" y="0" width="105" height="34" rx="12" fill="#ffffff" stroke="#2b2d42" stroke-width="2"/>
+      <polygon points="12,34 5,44 26,34" fill="#ffffff"/>
+      <polyline points="12,34 5,44 26,34" stroke="#2b2d42" stroke-width="2" fill="none"/>
+      <line x1="12" y1="34" x2="26" y2="34" stroke="#ffffff" stroke-width="3"/>
+      <text id="speechText" x="52" y="22" font-size="13" font-weight="bold" fill="#2b2d42" text-anchor="middle">Wheee~!</text>
+    </g>
+  </g>
+
+  <!-- Helmet -->
+  <path d="M 442 176 C 440 148 472 140 488 150 C 496 156 500 168 496 178 Z" fill="#f72585"/>
+  <g fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.85">
+    <path d="M 462 125 Q 469 135 467 146"/>
+    <path d="M 478 121 Q 484 132 484 144"/>
+    <path d="M 494 125 Q 499 135 500 145"/>
+  </g>
+  <path d="M 500 146 Q 513 146 517 153 Q 507 150 498 151 Z" fill="#3d405b"/>
+
+  <!-- Stars -->
+  <g fill="#ffd166">
+    <path d="M 410 150 l 3 8 l 8 3 l -8 3 l -3 8 l -3 -8 l -8 -3 l 8 -3 Z">
+      <animate attributeName="opacity" values="1;0.2;1" dur="1.4s" repeatCount="indefinite"/>
+    </path>
+    <path d="M 660 260 l 2 6 l 6 2 l -6 2 l -2 6 l -2 -6 l -6 -2 l 6 -2 Z">
+      <animate attributeName="opacity" values="0.2;1;0.2" dur="1.2s" repeatCount="indefinite"/>
+    </path>
+  </g>
+</svg>
+
+      <div id="effectsLayer" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+    </div>
+
+    <!-- Controls panel -->
+    <div class="mt-2.5 grid grid-cols-4 gap-1.5">
+      <button id="btnBell" class="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--secondary-foreground)] border border-[var(--border)] active:scale-95 transition-all shadow-xs cursor-pointer">
+        <span>🔔</span>
+        <span>Bell</span>
+      </button>
+
+      <button id="btnFeed" class="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--secondary-foreground)] border border-[var(--border)] active:scale-95 transition-all shadow-xs cursor-pointer">
+        <span>🐟</span>
+        <span>Feed</span>
+      </button>
+
+      <button id="btnShades" class="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--secondary-foreground)] border border-[var(--border)] active:scale-95 transition-all shadow-xs cursor-pointer">
+        <span>🕶️</span>
+        <span id="shadesText">Shades</span>
+      </button>
+
+      <button id="btnTurbo" class="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white active:scale-95 transition-all shadow-xs cursor-pointer shadow-amber-500/20">
+        <span>⚡</span>
+        <span id="turboText">Turbo</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function playBikeBell() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        [0, 0.12].forEach(offset => {
+          [2400, 3100, 3800].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + offset);
+            gain.gain.setValueAtTime(0.18 / (idx + 1), now + offset);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.35);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + offset);
+            osc.stop(now + offset + 0.38);
+          });
+        });
+      } catch (e) {}
+    }
+
+    function playGulp() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(420, now);
+        osc.frequency.exponentialRampToValueAtTime(840, now + 0.15);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      } catch (e) {}
+    }
+
+    function playTurboSound(isStart) {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        if (isStart) {
+          osc.frequency.setValueAtTime(150, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.4);
+        } else {
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(180, now + 0.3);
+        }
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.42);
+      } catch (e) {}
+    }
+
+    const speechText = document.getElementById('speechText');
+    const statusTag = document.getElementById('statusTag');
+    const speedNum = document.getElementById('speedNum');
+    const fishCountEl = document.getElementById('fishCount');
+    const sunglassesGroup = document.getElementById('sunglassesGroup');
+    const turboFlame = document.getElementById('turboFlame');
+    const effectsLayer = document.getElementById('effectsLayer');
+
+    let fishCount = 0;
+    let shadesOn = false;
+    let isTurbo = false;
+    let speechTimer = null;
+
+    function setSpeech(text, duration = 1800) {
+      if (!speechText) return;
+      speechText.textContent = text;
+      if (speechTimer) clearTimeout(speechTimer);
+      speechTimer = setTimeout(() => {
+        speechText.textContent = isTurbo ? 'Dash~!' : 'Wheee~!';
+      }, duration);
+    }
+
+    function spawnFloatingEffect(emoji, x, y) {
+      const el = document.createElement('div');
+      el.className = 'float-item';
+      el.textContent = emoji;
+      el.style.left = (x || (45 + Math.random() * 20)) + '%';
+      el.style.top = (y || (30 + Math.random() * 15)) + '%';
+      effectsLayer.appendChild(el);
+      setTimeout(() => el.remove(), 800);
+    }
+
+    document.getElementById('btnBell').addEventListener('click', () => {
+      playBikeBell();
+      setSpeech('Ding Ding~!');
+      spawnFloatingEffect('🔔', 62, 38);
+      const bell = document.querySelector('circle[cx="496"][cy="286"]');
+      if (bell) {
+        bell.classList.remove('ring-active');
+        void bell.offsetWidth;
+        bell.classList.add('ring-active');
+      }
+    });
+
+    document.getElementById('btnFeed').addEventListener('click', () => {
+      playGulp();
+      fishCount++;
+      fishCountEl.textContent = fishCount;
+      const cheers = ['Yummy fish +1!', 'Delicious~!', 'Energy boosted!', 'Full throttle!', 'Super snack!'];
+      setSpeech(cheers[fishCount % cheers.length]);
+      spawnFloatingEffect('🐟', 68, 28);
+      const pouch = document.querySelector('path[fill="url(#pouch)"]');
+      if (pouch) {
+        pouch.classList.remove('pouch-bounce');
+        void pouch.offsetWidth;
+        pouch.classList.add('pouch-bounce');
+      }
+    });
+
+    document.getElementById('btnShades').addEventListener('click', () => {
+      shadesOn = !shadesOn;
+      document.getElementById('shadesText').textContent = shadesOn ? 'No Shades' : 'Shades';
+      if (sunglassesGroup) {
+        if (shadesOn) {
+          sunglassesGroup.setAttribute('opacity', '1');
+          sunglassesGroup.setAttribute('transform', 'translate(0, 0) scale(1)');
+          setSpeech('Cool Bird~ 😎');
+          spawnFloatingEffect('✨', 60, 20);
+        } else {
+          sunglassesGroup.setAttribute('opacity', '0');
+          sunglassesGroup.setAttribute('transform', 'translate(488, 166) scale(0.1)');
+          setSpeech('Clear view~');
+        }
+      }
+    });
+
+    document.getElementById('btnTurbo').addEventListener('click', () => {
+      isTurbo = !isTurbo;
+      playTurboSound(isTurbo);
+      const turboBtn = document.getElementById('btnTurbo');
+      const turboText = document.getElementById('turboText');
+
+      if (isTurbo) {
+        turboText.textContent = 'Cruise';
+        turboBtn.classList.remove('from-amber-500', 'to-rose-500');
+        turboBtn.classList.add('from-rose-600', 'to-red-700', 'ring-2', 'ring-rose-400');
+        statusTag.textContent = '⚡ Turbo Mode 88km/h';
+        statusTag.className = 'inline-flex items-center px-1.5 py-0.2 rounded-md bg-rose-500/10 text-rose-600 font-bold text-[10px] border border-rose-500/20';
+        speedNum.textContent = '88';
+        speedNum.classList.add('text-rose-500');
+        if (turboFlame) turboFlame.setAttribute('opacity', '1');
+        setSpeech('Blast off! 🚀', 2500);
+        spawnFloatingEffect('💨', 25, 68);
+        spawnFloatingEffect('🔥', 20, 72);
+      } else {
+        turboText.textContent = 'Turbo';
+        turboBtn.classList.remove('from-rose-600', 'to-red-700', 'ring-2', 'ring-rose-400');
+        turboBtn.classList.add('from-amber-500', 'to-rose-500');
+        statusTag.textContent = 'Cruising 24km/h';
+        statusTag.className = 'inline-flex items-center px-1.5 py-0.2 rounded-md bg-emerald-500/10 text-emerald-600 font-medium text-[10px] border border-emerald-500/20';
+        speedNum.textContent = '24';
+        speedNum.classList.remove('text-rose-500');
+        if (turboFlame) turboFlame.setAttribute('opacity', '0');
+        setSpeech('Slowing down~');
+      }
+    });
+  </script>
+</body>
+</html>

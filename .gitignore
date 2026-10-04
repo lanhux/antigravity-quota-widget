@@ -1,0 +1,6 @@
+# Ignore large local files and logs
+i18n_runner.js
+*.log
+.DS_Store
+Thumbs.db
+picture/
