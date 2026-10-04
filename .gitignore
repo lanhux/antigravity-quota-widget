@@ -1,6 +1,8 @@
-# Ignore large local files and logs
+# Ignore local files and logs
 i18n_runner.js
 *.log
 .DS_Store
 Thumbs.db
 picture/
+pelican_bicycle.*
+surfing_marmot.*

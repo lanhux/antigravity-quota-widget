@@ -1,20 +1,19 @@
-# Antigravity Quota Dashboard & Companion Widgets 📊🚴
+# Antigravity Quota Dashboard 📊
 
 [中文说明 (Chinese)](README_CN.md) | **English**
 
-A portable, interactive Quota Dashboard and companion desktop widgets designed for **Google Antigravity**.
+A clean, interactive Quota Dashboard widget designed for **Google Antigravity**.
 
-Provides real-time quota tracking for Google AI Pro (Gemini) and 3rd party models (Claude & GPT), with live polling, countdown reset predictions, and companion desk pets (Pelican on a Bicycle & Surfing Marmot).
+Provides real-time quota tracking for Google AI Pro (Gemini) and 3rd-party models (Claude & GPT), with local endpoint polling, 5-hour sliding window visualization, and reset countdown predictions.
 
 ---
 
 ## ✨ Features
 
 - **⚡ Real-time Quota Sync**: Connects to the local language server / endpoint (`http://127.0.0.1:12655/api/quota`) to monitor sliding 5-hour and weekly usage windows.
-- **🎨 Interactive Rich UI**: Built with Tailwind CSS and responsive gradients, fitting seamlessly into Antigravity chat via `generative_ui`.
-- **🌐 Install-time i18n**: Choose English or Chinese during installation; auto-detects your OS UI culture.
-- **🚴 Fun Companion Pets**: Includes the beloved "Pelican on a Bicycle" (with bike bell, fish feeding, shades, and turbo flame animations) and "Surfing Marmot".
-- **📦 Instant Setup**: Install into any new computer with a single command!
+- **🎨 Interactive Rich UI**: Built with Tailwind CSS, supporting dark/light modes and responsive gradients via Antigravity `generative_ui`.
+- **🌐 Install-time i18n**: Select English or Chinese during installation; auto-detects your system UI culture.
+- **📦 Instant Setup**: Install onto any new machine with a single command!
 
 ---
 
@@ -44,10 +43,10 @@ git clone https://github.com/lanhux/antigravity-quota-widget.git /tmp/ag-widget 
 ## 💡 How to Use in Antigravity
 
 Once installed, the `antigravity-quota` skill is active. You can simply ask the assistant:
-- *"Show my Antigravity quota"* / *"Check my remaining limits"*
-- *"Bring out the pelican bike widget"*
+- *"Show my Antigravity quota"*
+- *"Check my remaining token limits"*
 
-The assistant will render the live interactive widget directly inside the conversation!
+The assistant will render the live interactive quota widget directly inside the conversation!
 
 ---
 
@@ -58,9 +57,9 @@ The assistant will render the live interactive widget directly inside the conver
 │   └── antigravity-quota/
 │       └── SKILL.md                 # Antigravity skill specification
 ├── widgets/
-│   ├── quota_widget/                # Quota dashboard (ZH & EN)
-│   ├── pelican_bicycle/             # Interactive pelican pet (ZH & EN)
-│   └── surfing_marmot/              # Surfing marmot SVG asset
+│   └── quota_widget/                # Quota dashboard (ZH & EN)
+│       ├── quota_widget_zh.html
+│       └── quota_widget_en.html
 ├── install.ps1                      # Windows installer (PowerShell)
 ├── install.sh                       # Unix installer (Bash)
 ├── README.md                        # English documentation
