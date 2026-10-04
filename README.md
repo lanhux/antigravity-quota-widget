@@ -24,19 +24,19 @@ Provides real-time quota tracking for Google AI Pro (Gemini) and 3rd party model
 Run this one-liner in your terminal:
 ```powershell
 # Clone and install with auto-detected language
-git clone https://github.com/<your-username>/antigravity-quota-widget.git "$env:TEMP\ag-widget"; & "$env:TEMP\ag-widget\install.ps1" -Lang auto; Remove-Item -Recurse -Force "$env:TEMP\ag-widget"
+git clone https://github.com/lanhux/antigravity-quota-widget.git "$env:TEMP\ag-widget"; & "$env:TEMP\ag-widget\install.ps1" -Lang auto; Remove-Item -Recurse -Force "$env:TEMP\ag-widget"
 ```
 
 Or clone manually:
 ```powershell
-git clone https://github.com/<your-username>/antigravity-quota-widget.git
+git clone https://github.com/lanhux/antigravity-quota-widget.git
 cd antigravity-quota-widget
 .\install.ps1 -Lang en   # or -Lang zh
 ```
 
 ### macOS / Linux (Bash)
 ```bash
-git clone https://github.com/<your-username>/antigravity-quota-widget.git /tmp/ag-widget && /tmp/ag-widget/install.sh auto && rm -rf /tmp/ag-widget
+git clone https://github.com/lanhux/antigravity-quota-widget.git /tmp/ag-widget && /tmp/ag-widget/install.sh auto && rm -rf /tmp/ag-widget
 ```
 
 ---

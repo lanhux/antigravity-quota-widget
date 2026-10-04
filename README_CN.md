@@ -24,19 +24,19 @@
 在 PowerShell 终端中执行单行命令即可完成一键部署：
 ```powershell
 # 自动检测语言并安装到 ~/.gemini/config/skills/
-git clone https://github.com/<你的用户名>/antigravity-quota-widget.git "$env:TEMP\ag-widget"; & "$env:TEMP\ag-widget\install.ps1" -Lang auto; Remove-Item -Recurse -Force "$env:TEMP\ag-widget"
+git clone https://github.com/lanhux/antigravity-quota-widget.git "$env:TEMP\ag-widget"; & "$env:TEMP\ag-widget\install.ps1" -Lang auto; Remove-Item -Recurse -Force "$env:TEMP\ag-widget"
 ```
 
 或者手动克隆并指定中文：
 ```powershell
-git clone https://github.com/<你的用户名>/antigravity-quota-widget.git
+git clone https://github.com/lanhux/antigravity-quota-widget.git
 cd antigravity-quota-widget
 .\install.ps1 -Lang zh
 ```
 
 ### macOS / Linux (Bash)
 ```bash
-git clone https://github.com/<你的用户名>/antigravity-quota-widget.git /tmp/ag-widget && /tmp/ag-widget/install.sh zh && rm -rf /tmp/ag-widget
+git clone https://github.com/lanhux/antigravity-quota-widget.git /tmp/ag-widget && /tmp/ag-widget/install.sh zh && rm -rf /tmp/ag-widget
 ```
 
 ---
