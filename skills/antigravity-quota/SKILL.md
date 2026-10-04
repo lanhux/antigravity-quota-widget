@@ -1,20 +1,100 @@
 ---
 name: antigravity-quota
-description: Renders the interactive Antigravity quota & model usage dashboard widget using generative_ui. Triggers on requests about remaining quota, tokens, reset limits, or checking allowance.
+description: Interactive Antigravity quota & model usage dashboard widget with generative_ui. Displays real-time Gemini & Claude/GPT allowance, 5-hour sliding windows, and countdown timers, with automated CLI/agent skill installation workflows.
 ---
 
-# Antigravity Quota Dashboard
+# Antigravity Quota Dashboard Skill
 
-Use this skill when the user asks about:
-- Their Antigravity quota, usage, token limits, remaining 5h sliding window, or reset schedules.
-- Refreshing the status of Google AI Pro (Gemini) and 3rd party (Claude / GPT) allowances.
+This skill enables Antigravity AI assistants to render an interactive quota dashboard, inspect remaining model allowances, and automate the deployment/installation of the quota widget across machines and workspaces.
 
-## Quota Dashboard Widget
+---
 
-When asked to display or refresh the quota, inline the widget using the Generative UI mechanism:
+## 🎯 Trigger Scenarios & User Intents
 
-1. Locate the widget template:
-   - Primary: `<current_skill_dir>/widgets/quota_widget/index.html` (or `<skill_dir>/quota_widget.html`)
-2. Read the HTML content.
-3. If fresh quota numbers are provided via tools or API, replace the default state numbers in the HTML script.
-4. Render using the write artifact or inline UI pattern.
+Activate this skill when the user asks:
+1. **Quota & Usage Inquiries**:
+   - "查看我的额度" / "Show my Antigravity quota"
+   - "剩余Token还有多少" / "Check remaining allowances"
+   - "5小时滑动窗口剩余" / "5-hour sliding window status"
+   - "刷新额度" / "Refresh quota dashboard"
+2. **Skill Installation & Setup**:
+   - "安装额度看板" / "部署额度小组件"
+   - "通过Skill安装quota widget" / "Install quota dashboard skill"
+   - "更新额度看板技能" / "Update quota widget"
+3. **Configuration & Language Switching**:
+   - "把额度面板切换成英文/中文" / "Change quota widget language to English/Chinese"
+   - "卸载额度看板" / "Uninstall quota skill"
+
+---
+
+## 📋 Workflows
+
+### Workflow 1: Display Live Quota Dashboard (Generative UI)
+
+When the user asks to view, check, or refresh their quota:
+
+1. **Locate the Widget HTML**:
+   - Primary path: `<current_skill_dir>/widgets/quota_widget/index.html`
+   - Fallback path: `<workspace_root>/widgets/quota_widget/index.html`
+   - Language-specific variants:
+     - Chinese: `<current_skill_dir>/widgets/quota_widget/quota_widget_zh.html`
+     - English: `<current_skill_dir>/widgets/quota_widget/quota_widget_en.html`
+
+2. **Read HTML Content**:
+   - Use `view_file` to inspect the contents of the chosen widget template.
+
+3. **(Optional) Local Endpoint Probe**:
+   - The widget automatically polls `http://127.0.0.1:12655/api/quota` directly within the browser/webview.
+   - If the agent has access to fresh quota metrics via tools or command line, replace or update the default state numbers in the HTML script block.
+
+4. **Render with Generative UI / Artifact**:
+   - Present the widget to the user using the `generative_ui` pattern or by creating an artifact HTML document.
+
+---
+
+### Workflow 2: Automated Skill Installation (AI Agent Runbook)
+
+When the user instructs the assistant to install or update the quota dashboard skill:
+
+1. **Determine Installation Scope**:
+   - **Global (Default & Recommended)**: `~/.gemini/config/skills/antigravity-quota/`
+     - Available everywhere on this machine across all workspaces.
+   - **Workspace**: `<workspace_root>/.agents/skills/antigravity-quota/`
+     - Project-specific, ideal for team repositories.
+
+2. **Determine Language**:
+   - Auto-detected or user-specified (`zh` for Chinese, `en` for English).
+
+3. **Execute Installation**:
+   - **Via Command Line Script**:
+     - **Windows (PowerShell)**:
+       ```powershell
+       & "<skill_dir>\scripts\install.ps1" -Lang zh -Scope Global
+       ```
+     - **macOS / Linux (Bash)**:
+       ```bash
+       bash "<skill_dir>/scripts/install.sh" -l zh -s global
+       ```
+   - **Via Direct Agent File Operations**:
+     If running scripts is restricted, the agent can directly create the folder structure and copy files:
+     - Target: `~/.gemini/config/skills/antigravity-quota/`
+     - Copy `SKILL.md` -> `<target>/SKILL.md`
+     - Copy `widgets/quota_widget/` -> `<target>/widgets/quota_widget/`
+     - Copy selected language file (`quota_widget_zh.html` or `quota_widget_en.html`) -> `<target>/widgets/quota_widget/index.html`
+     - Copy `scripts/` -> `<target>/scripts/`
+
+4. **Verify Deployment**:
+   - Confirm `<target>/SKILL.md` and `<target>/widgets/quota_widget/index.html` exist.
+   - Report success to the user with sample trigger commands.
+
+---
+
+### Workflow 3: Uninstallation / Cleanup
+
+When the user asks to remove the skill:
+1. Locate the installed path (`~/.gemini/config/skills/antigravity-quota` or `<workspace>/.agents/skills/antigravity-quota`).
+2. Run uninstaller script:
+   - PowerShell: `& "<target>\scripts\install.ps1" -Uninstall -Scope Global`
+   - Bash: `bash "<target>/scripts/install.sh" -u -s global`
+   - Or delete the directory directly.
+3. Confirm clean uninstallation to the user.
