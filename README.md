@@ -4,17 +4,18 @@
 
 A clean, interactive Quota Dashboard widget designed for **Google Antigravity**.
 
-Provides real-time quota tracking for Google AI Pro (Gemini) and 3rd-party models (Claude & GPT), with local endpoint polling, 5-hour sliding window visualization, and reset countdown predictions. Supports both **CLI one-liner installation** and **AI Agent conversational (Skill) installation**.
+Provides real-time 3-pool quota tracking for **Gemini 4 Argon (Dedicated Weekly WTU Pool)**, Google AI Pro (Gemini 3.8 native pool), and 3rd-party models (Claude & GPT), with local endpoint polling, WTU capacity & step estimates, 5-hour sliding window visualization, and reset countdown predictions. Supports both **CLI one-liner installation** and **AI Agent conversational (Skill) installation**.
 
 ---
 
 ## ✨ Features
 
-- **⚡ Real-time Quota Sync**: Connects to the local language server / endpoint (`http://127.0.0.1:12655/api/quota`) to monitor sliding 5-hour and weekly usage windows.
-- **🎨 Interactive Rich UI**: Built with Tailwind CSS, supporting dark/light modes and responsive gradients via Antigravity `generative_ui`.
+- **⚡ 3-Pool Panoramic Sync**: Real-time tracking across **Gemini 4 Argon** (weekly WTU pool), **Gemini 3.8**, and **Claude / GPT** tiers with instant tab-switching.
+- **🧮 WTU Capacity Estimator**: Built-in Argon benchmark dynamically translating remaining quota percentage to usable reasoning steps (~315 steps), WTU pool capacity (~3.5M WTU), and token throughput (~18M tokens).
+- **🔌 Zero-Config Local Bridge**: Bundled lightweight `quota_server.py` that auto-discovers local `language_server` processes and CSRF tokens to provide a unified CORS endpoint (`http://127.0.0.1:12655/api/quota`).
+- **🎨 Interactive Rich UI**: Built with Tailwind CSS, supporting dark/light modes and dynamic breathing-dot status indicator (Live Sync vs Snapshot Mode) via Antigravity `generative_ui`.
 - **🌐 Install-time i18n**: Select English or Chinese during installation; auto-detects your system UI culture or can be switched anytime.
 - **📦 Dual-mode Quick Setup**: Install via a single terminal command or simply instruct your Antigravity AI assistant to deploy it via Skill.
-- **🧹 Clean & Focused**: Lightweight repository dedicated solely to the quota dashboard, free of unrelated toy assets.
 
 ---
 
@@ -95,13 +96,15 @@ antigravity-quota-widget/
 ├── skills/
 │   └── antigravity-quota/
 │       ├── SKILL.md                 # Antigravity skill specification & runbooks
-│       ├── scripts/                 # Portable helper scripts (install.ps1 / install.sh)
+│       ├── scripts/                 # Portable helper & bridge scripts (install.ps1 / install.sh / quota_server.py)
 │       └── widgets/quota_widget/    # Bundled dashboard widget assets
 ├── widgets/
 │   └── quota_widget/
 │       ├── index.html               # Default active widget
-│       ├── quota_widget_zh.html     # Chinese template
+│       ├── quota_widget_zh.html     # Chinese template (Argon, Gemini, Claude 3-pool)
 │       └── quota_widget_en.html     # English template
+├── scripts/
+│   └── quota_server.py              # Local language_server discovery & CORS bridge
 ├── install.ps1                      # Windows installer (PowerShell)
 ├── install.sh                       # Unix installer (Bash)
 ├── README.md                        # English documentation

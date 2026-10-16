@@ -137,8 +137,13 @@ try {
     # 3. Copy scripts for standalone portable maintenance
     $installPs1 = Join-Path $sourceDir "install.ps1"
     $installSh = Join-Path $sourceDir "install.sh"
+    $quotaServerPy = Join-Path $sourceDir "skills\$SkillName\scripts\quota_server.py"
+    if (-not (Test-Path $quotaServerPy)) {
+        $quotaServerPy = Join-Path $sourceDir "scripts\quota_server.py"
+    }
     if (Test-Path $installPs1) { Copy-Item $installPs1 (Join-Path $targetScriptsDir "install.ps1") -Force }
     if (Test-Path $installSh) { Copy-Item $installSh (Join-Path $targetScriptsDir "install.sh") -Force }
+    if (Test-Path $quotaServerPy) { Copy-Item $quotaServerPy (Join-Path $targetScriptsDir "quota_server.py") -Force }
 
     Write-Host ">>> Done! Successfully installed to: $targetDir" -ForegroundColor Green
     Write-Host ">>> Test or summon in Antigravity chat: '查看我的额度' or 'Show my quota'!" -ForegroundColor Yellow

@@ -4,3 +4,14 @@ i18n_runner.js
 .DS_Store
 Thumbs.db
 picture/
+
+# Local scratch and analysis scripts
+audit_routing.py
+geo_reconstruction.py
+world_land_sea_matrix.csv
+world_map_*.png
+miaodp_bug_report*
+*.zip
+crop_sprites.ps1
+normalize_sprites.ps1
+widgets/capability_deck/

@@ -1,11 +1,11 @@
 ---
 name: antigravity-quota
-description: Interactive Antigravity quota & model usage dashboard widget with generative_ui. Displays real-time Gemini & Claude/GPT allowance, 5-hour sliding windows, and countdown timers, with automated CLI/agent skill installation workflows.
+description: Interactive Antigravity quota & model usage dashboard widget with generative_ui. Displays real-time Gemini 4 Argon (WTU pool), Gemini 3.8, and Claude/GPT allowances, 5-hour sliding windows, WTU capacity estimators, and countdown timers, with automated CLI/agent skill installation workflows.
 ---
 
 # Antigravity Quota Dashboard Skill
 
-This skill enables Antigravity AI assistants to render an interactive quota dashboard, inspect remaining model allowances, and automate the deployment/installation of the quota widget across machines and workspaces.
+This skill enables Antigravity AI assistants to render an interactive 3-pool quota dashboard (**Gemini 4 Argon**, **Gemini 3.8**, and **Claude & GPT**), inspect remaining model allowances and WTU capacity estimates, and automate the deployment/installation of the quota widget across machines and workspaces.
 
 ---
 
@@ -14,7 +14,7 @@ This skill enables Antigravity AI assistants to render an interactive quota dash
 Activate this skill when the user asks:
 1. **Quota & Usage Inquiries**:
    - "查看我的额度" / "Show my Antigravity quota"
-   - "剩余Token还有多少" / "Check remaining allowances"
+   - "Argon额度还有多少" / "Check remaining Argon / Token allowances"
    - "5小时滑动窗口剩余" / "5-hour sliding window status"
    - "刷新额度" / "Refresh quota dashboard"
 2. **Skill Installation & Setup**:
@@ -40,15 +40,19 @@ When the user asks to view, check, or refresh their quota:
      - Chinese: `<current_skill_dir>/widgets/quota_widget/quota_widget_zh.html`
      - English: `<current_skill_dir>/widgets/quota_widget/quota_widget_en.html`
 
-2. **Read HTML Content**:
-   - Use `view_file` to inspect the contents of the chosen widget template.
+2. **Ensure Local Live Bridge (`http://127.0.0.1:12655/api/quota`) or Probe `RetrieveUserQuotaSummary`**:
+   - The widget polls `http://127.0.0.1:12655/api/quota` directly within the webview.
+   - If `127.0.0.1:12655` is not yet listening, start the lightweight local bridge in daemon mode:
+     ```powershell
+     python "<current_skill_dir>/scripts/quota_server.py"
+     ```
+   - Or query `http://127.0.0.1:<port>/exa.language_server_pb.LanguageServerService/RetrieveUserQuotaSummary` directly via `language_server` and update the initial snapshot `state.groups` in the artifact HTML.
 
-3. **(Optional) Local Endpoint Probe**:
-   - The widget automatically polls `http://127.0.0.1:12655/api/quota` directly within the browser/webview.
-   - If the agent has access to fresh quota metrics via tools or command line, replace or update the default state numbers in the HTML script block.
-
-4. **Render with Generative UI / Artifact**:
-   - Present the widget to the user using the `generative_ui` pattern or by creating an artifact HTML document.
+3. **Render with Generative UI (`<agent-embed>`)**:
+   - Copy the HTML file into the conversation's artifact directory (e.g. `<artifact_dir>/quota_widget.html` with `UserFacing: true`) and embed it inline in your response:
+     ```html
+     <agent-embed src="file:///<artifact_dir>/quota_widget.html"></agent-embed>
+     ```
 
 ---
 

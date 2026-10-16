@@ -4,17 +4,18 @@
 
 专为 **Google Antigravity** 打造的便携式交互型额度监控面板。
 
-提供 Google AI Pro (Gemini) 与第三方模型 (Claude & GPT) 的实时额度追踪、5小时滑动窗口百分比展示与重置倒计时预测。支持**命令行一键安装**与**智能体对话式（Skill）一键安装**。
+提供 **Gemini 4 Argon (独立周池 WTU)**、Google AI Pro (Gemini 3.8 原生池) 与第三方模型 (Claude & GPT) 的实时三池额度追踪、WTU 算力步数折算预测、5小时滑动窗口百分比展示与重置倒计时。支持**命令行一键安装**与**智能体对话式（Skill）一键安装**。
 
 ---
 
 ## ✨ 核心特性
 
-- **⚡ 实时额度同步**：探测并连接本地服务端口（`http://127.0.0.1:12655/api/quota`），实时监控 5 小时滑动额度与每周总额度。
-- **🎨 现代交互 UI**：原生 Tailwind CSS，暗色/亮色自适应，支持通过 `generative_ui` 在 Antigravity 对话中内嵌渲染。
+- **⚡ 三池全景实时同步**：支持 **Gemini 4 Argon**（独立周池）、**Gemini 3.8** 与 **Claude / GPT** 独立监控，支持点击标签秒切详情。
+- **🧮 WTU 算力余量折算器**：内置 Argon 独立基准，基于剩余百分比动态换算可用步数（~315 步）、WTU 算力池（~350 万）与吞吐 Token 数（~1800 万）。
+- **🔌 本地服务秒级桥接**：附带轻量级 `quota_server.py`，全自动探测本地 `language_server` 进程与 CSRF Token，对外提供统一 CORS 接口（`http://127.0.0.1:12655/api/quota`）。
+- **🎨 现代交互 UI**：原生 Tailwind CSS，暗色/亮色自适应，支持通过 `generative_ui` 在 Antigravity 对话中内嵌渲染，配备动态呼吸灯（实时同步 / 快照模式）。
 - **🌐 多语言适配 (i18n)**：预置中文版与英文版，安装期自适应系统语言，亦可随时按需切换。
 - **📦 双模式快速安装**：支持终端单行命令秒装，也支持在 Antigravity 聊天中直接让 AI 助手调用 Skill 规范自动部署。
-- **🧹 干净轻量**：纯净专注于额度面板，无多余第三方玩具依赖，解耦清晰。
 
 ---
 
@@ -95,13 +96,15 @@ antigravity-quota-widget/
 ├── skills/
 │   └── antigravity-quota/
 │       ├── SKILL.md                 # Antigravity 技能核心规范文档
-│       ├── scripts/                 # 便携维护脚本 (install.ps1 / install.sh)
+│       ├── scripts/                 # 便携维护与桥接脚本 (install.ps1 / install.sh / quota_server.py)
 │       └── widgets/quota_widget/    # 随 Skill 一同分发的看板组件
 ├── widgets/
 │   └── quota_widget/
 │       ├── index.html               # 默认激活组件
-│       ├── quota_widget_zh.html     # 中文版组件源码
+│       ├── quota_widget_zh.html     # 中文版组件源码（含 Argon、Gemini、Claude 三池）
 │       └── quota_widget_en.html     # 英文版组件源码
+├── scripts/
+│   └── quota_server.py              # 本地 language_server 自动发现与 CORS 桥接服务
 ├── install.ps1                      # Windows 命令行一键安装器
 ├── install.sh                       # Unix/macOS 命令行一键安装器
 ├── README.md                        # 英文说明

@@ -120,6 +120,11 @@ fi
 
 if [ -f "$SOURCE_DIR/install.sh" ]; then cp "$SOURCE_DIR/install.sh" "$TARGET_DIR/scripts/install.sh"; fi
 if [ -f "$SOURCE_DIR/install.ps1" ]; then cp "$SOURCE_DIR/install.ps1" "$TARGET_DIR/scripts/install.ps1"; fi
+if [ -f "$SOURCE_DIR/skills/$SKILL_NAME/scripts/quota_server.py" ]; then
+  cp "$SOURCE_DIR/skills/$SKILL_NAME/scripts/quota_server.py" "$TARGET_DIR/scripts/quota_server.py"
+elif [ -f "$SOURCE_DIR/scripts/quota_server.py" ]; then
+  cp "$SOURCE_DIR/scripts/quota_server.py" "$TARGET_DIR/scripts/quota_server.py"
+fi
 
 echo ">>> Done! Successfully installed to: $TARGET_DIR"
 echo ">>> Test or summon in Antigravity chat: '查看我的额度' or 'Show my quota'!"
